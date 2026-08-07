@@ -2,6 +2,8 @@ bin
 include
 lib
 .Python
-tests/
 .envrc
 __pycache__
+.DS_Store
+.venv/
+/docs/
