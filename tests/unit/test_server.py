@@ -1,3 +1,5 @@
+import pytest
+
 import server
 
 
@@ -6,3 +8,35 @@ def test_initial_data_is_loaded():
     assert len(server.competitions) == 2
     assert server.clubs[0]["points"] == "13"
     assert server.competitions[0]["numberOfPlaces"] == "25"
+
+
+def test_unknown_email_displays_error(client):
+    initial_clubs = [club.copy() for club in server.clubs]
+    initial_competitions = [competition.copy() for competition in server.competitions]
+
+    response = client.post("/showSummary", data={"email": "unknown@example.com"})
+
+    assert response.status_code == 200
+    assert "Adresse électronique inconnue." in response.get_data(as_text=True)
+    assert server.clubs == initial_clubs
+    assert server.competitions == initial_competitions
+
+
+@pytest.mark.parametrize("email", ["", "   "])
+def test_empty_email_is_treated_as_unknown(client, email):
+    response = client.post("/showSummary", data={"email": email})
+
+    assert response.status_code == 200
+    assert "Adresse électronique inconnue." in response.get_data(as_text=True)
+
+
+def test_known_email_displays_club_summary(client):
+    response = client.post(
+        "/showSummary",
+        data={"email": "john@simplylift.co"},
+    )
+
+    response_text = response.get_data(as_text=True)
+    assert response.status_code == 200
+    assert "john@simplylift.co" in response_text
+    assert "Points available: 13" in response_text
