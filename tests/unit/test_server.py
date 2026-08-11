@@ -40,3 +40,43 @@ def test_known_email_displays_club_summary(client):
     assert response.status_code == 200
     assert "john@simplylift.co" in response_text
     assert "Points available: 13" in response_text
+
+
+def test_past_competition_is_not_bookable(client):
+    response = client.get("/book/Spring Festival/Simply Lift")
+
+    response_text = response.get_data(as_text=True)
+    assert response.status_code == 200
+    assert "La compétition Spring Festival est passée et ne peut plus être réservée." in response_text
+    assert "<form" not in response_text
+
+
+def test_purchase_places_without_mutation(client):
+    initial_clubs = [club.copy() for club in server.clubs]
+    initial_competitions = [competition.copy() for competition in server.competitions]
+
+    response = client.post(
+        "/purchasePlaces",
+        data={"club": "Simply Lift", "competition": "Spring Festival", "places": "1"},
+    )
+
+    response_text = response.get_data(as_text=True)
+    assert response.status_code == 200
+    assert "La compétition Spring Festival est passée et ne peut plus être réservée." in response_text
+    assert "<form" not in response_text
+    assert server.clubs == initial_clubs
+    assert server.competitions == initial_competitions
+
+
+def test_future_competition_is_bookable(client):
+    from datetime import datetime, timedelta
+
+    spring_festival = server.competitions[0]
+    spring_festival["date"] = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
+
+    response = client.get("/book/Spring Festival/Simply Lift")
+
+    response_text = response.get_data(as_text=True)
+    assert response.status_code == 200
+    assert "Simply Lift" in response_text
+    assert "<form" in response_text
