@@ -51,10 +51,7 @@ def book(competition, club):
     foundCompetition = [c for c in competitions if c["name"] == competition][0]
 
     if foundCompetition and not valideDate(foundCompetition):
-        flash(
-            f"La compétition {foundCompetition['name']} est passée "
-            "et ne peut plus être réservée."
-        )
+        flash(f"La compétition {foundCompetition['name']} est passée " "et ne peut plus être réservée.")
         return render_template("welcome.html", club=foundClub, competitions=competitions)
 
     if foundClub and foundCompetition and valideDate(foundCompetition):
@@ -69,13 +66,17 @@ def purchasePlaces():
     competition = [c for c in competitions if c["name"] == request.form["competition"]][0]
     club = [c for c in clubs if c["name"] == request.form["club"]][0]
     if competition and not valideDate(competition):
-        flash(
-            f"La compétition {competition['name']} est passée "
-            "et ne peut plus être réservée."
-        )
+        flash(f"La compétition {competition['name']} est passée " "et ne peut plus être réservée.")
         return render_template("welcome.html", club=club, competitions=competitions)
 
     placesRequired = int(request.form["places"])
+
+    clubPoints = int(club["points"])
+
+    if placesRequired > clubPoints:
+        flash("Erreur : le club ne possède pas assez de points pour réserver ce nombre de places.")
+        return render_template("welcome.html", club=club, competitions=competitions)
+
     competition["numberOfPlaces"] = int(competition["numberOfPlaces"]) - placesRequired
 
     flash("Réservation effectuée avec succès.")

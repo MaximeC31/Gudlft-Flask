@@ -80,3 +80,41 @@ def test_future_competition_is_bookable(client):
     assert response.status_code == 200
     assert "Simply Lift" in response_text
     assert "<form" in response_text
+
+
+# PSEUDOCODE : avec 4 points, demander 5 places, puis vérifier le refus
+# et l'absence de mutation des deux soldes.
+def test_purchase_places_with_insufficient_points(client, booking_data):
+    club, competition = booking_data
+    initial_clubs = [club.copy() for club in server.clubs]
+    initial_competitions = [competition.copy() for competition in server.competitions]
+
+    response = client.post(
+        "/purchasePlaces",
+        data={"club": club["name"], "competition": competition["name"], "places": "5"},
+    )
+
+    response_text = response.get_data(as_text=True)
+    assert response.status_code == 200
+    assert "pas assez de points" in response_text
+    assert server.clubs == initial_clubs
+    assert server.competitions == initial_competitions
+
+
+# PSEUDOCODE : avec 4 points, demander exactement 4 places, puis vérifier
+# l'acceptation, la diminution des places et les points temporairement inchangés.
+def test_purchase_reservation_with_same_points(client, booking_data):
+    club, competition = booking_data
+    initial_points = club["points"]
+    initial_places = int(competition["numberOfPlaces"])
+
+    response = client.post(
+        "/purchasePlaces",
+        data={"club": club["name"], "competition": competition["name"], "places": "4"},
+    )
+
+    response_text = response.get_data(as_text=True)
+    assert response.status_code == 200
+    assert "Réservation effectuée avec succès." in response_text
+    assert club["points"] == initial_points
+    assert competition["numberOfPlaces"] == initial_places - 4
