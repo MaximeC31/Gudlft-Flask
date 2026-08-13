@@ -20,8 +20,6 @@ def client(isolated_data):
 
 @pytest.fixture
 def booking_data(monkeypatch):
-    # PSEUDOCODE : créer un état métier minimal indépendant des fichiers JSON.
-    # Un club possède 4 points et une compétition future possède 10 places.
     club = {"name": "Test Club", "email": "test@example.com", "points": "4"}
     competition = {
         "name": "Future Competition",

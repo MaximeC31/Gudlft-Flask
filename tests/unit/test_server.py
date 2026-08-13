@@ -82,8 +82,6 @@ def test_future_competition_is_bookable(client):
     assert "<form" in response_text
 
 
-# PSEUDOCODE : avec 4 points, demander 5 places, puis vérifier le refus
-# et l'absence de mutation des deux soldes.
 def test_purchase_places_with_insufficient_points(client, booking_data):
     club, competition = booking_data
     initial_clubs = [club.copy() for club in server.clubs]
@@ -101,8 +99,6 @@ def test_purchase_places_with_insufficient_points(client, booking_data):
     assert server.competitions == initial_competitions
 
 
-# PSEUDOCODE : avec 4 points, demander exactement 4 places, puis vérifier
-# l'acceptation, la diminution des places et les points temporairement inchangés.
 def test_purchase_reservation_with_same_points(client, booking_data):
     club, competition = booking_data
     initial_points = club["points"]
@@ -118,3 +114,40 @@ def test_purchase_reservation_with_same_points(client, booking_data):
     assert "Réservation effectuée avec succès." in response_text
     assert club["points"] == initial_points
     assert competition["numberOfPlaces"] == initial_places - 4
+
+
+def test_purchase_places_exceeding_limit(client, booking_data):
+    club, competition = booking_data
+    club["points"] = "13"
+    competition["numberOfPlaces"] = "13"
+    initial_clubs = [club.copy() for club in server.clubs]
+    initial_competitions = [competition.copy() for competition in server.competitions]
+
+    response = client.post(
+        "/purchasePlaces",
+        data={"club": club["name"], "competition": competition["name"], "places": "13"},
+    )
+
+    response_text = response.get_data(as_text=True)
+    assert response.status_code == 200
+    assert "Erreur : le nombre de places demandées dépasse la limite de 12 par réservation." in response_text
+    assert server.clubs == initial_clubs
+    assert server.competitions == initial_competitions
+
+
+def test_purchase_places_at_limit(client, booking_data):
+    club, competition = booking_data
+    club["points"] = "12"
+    competition["numberOfPlaces"] = "12"
+    initial_clubs = [club.copy() for club in server.clubs]
+
+    response = client.post(
+        "/purchasePlaces",
+        data={"club": club["name"], "competition": competition["name"], "places": "12"},
+    )
+
+    response_text = response.get_data(as_text=True)
+    assert response.status_code == 200
+    assert "Réservation effectuée avec succès." in response_text
+    assert server.clubs == initial_clubs
+    assert competition["numberOfPlaces"] == 0

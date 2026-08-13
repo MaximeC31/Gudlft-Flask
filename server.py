@@ -73,6 +73,10 @@ def purchasePlaces():
 
     clubPoints = int(club["points"])
 
+    if placesRequired > 12:
+        flash("Erreur : le nombre de places demandées dépasse la limite de 12 par réservation.")
+        return render_template("welcome.html", club=club, competitions=competitions)
+
     if placesRequired > clubPoints:
         flash("Erreur : le club ne possède pas assez de points pour réserver ce nombre de places.")
         return render_template("welcome.html", club=club, competitions=competitions)
