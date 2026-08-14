@@ -151,3 +151,38 @@ def test_purchase_places_at_limit(client, booking_data):
     assert "Réservation effectuée avec succès." in response_text
     assert server.clubs == initial_clubs
     assert competition["numberOfPlaces"] == 0
+
+
+def test_purchase_places_exceeding_capacity(client, booking_data):
+    club, competition = booking_data
+    competition["numberOfPlaces"] = "1"
+    initial_clubs = [club.copy() for club in server.clubs]
+    initial_competitions = [competition.copy() for competition in server.competitions]
+
+    response = client.post(
+        "/purchasePlaces",
+        data={"club": club["name"], "competition": competition["name"], "places": "2"},
+    )
+
+    response_text = response.get_data(as_text=True)
+    assert response.status_code == 200
+    assert "Erreur : le nombre de places demandées dépasse la limite de places disponibles." in response_text
+    assert server.clubs == initial_clubs
+    assert server.competitions == initial_competitions
+
+
+def test_purchase_places_at_capacity(client, booking_data):
+    club, competition = booking_data
+    competition["numberOfPlaces"] = "4"
+    initial_clubs = [club.copy() for club in server.clubs]
+
+    response = client.post(
+        "/purchasePlaces",
+        data={"club": club["name"], "competition": competition["name"], "places": "4"},
+    )
+
+    response_text = response.get_data(as_text=True)
+    assert response.status_code == 200
+    assert "Réservation effectuée avec succès." in response_text
+    assert club["points"] == initial_clubs[0]["points"]
+    assert competition["numberOfPlaces"] == 0

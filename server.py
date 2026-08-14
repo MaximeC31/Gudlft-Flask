@@ -81,6 +81,12 @@ def purchasePlaces():
         flash("Erreur : le club ne possède pas assez de points pour réserver ce nombre de places.")
         return render_template("welcome.html", club=club, competitions=competitions)
 
+    remaining_places = int(competition["numberOfPlaces"])
+
+    if placesRequired > remaining_places:
+        flash("Erreur : le nombre de places demandées dépasse la limite de places disponibles.")
+        return render_template("welcome.html", club=club, competitions=competitions)
+
     competition["numberOfPlaces"] = int(competition["numberOfPlaces"]) - placesRequired
 
     flash("Réservation effectuée avec succès.")
