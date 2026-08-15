@@ -101,7 +101,7 @@ def test_purchase_places_with_insufficient_points(client, booking_data):
 
 def test_purchase_reservation_with_same_points(client, booking_data):
     club, competition = booking_data
-    initial_points = club["points"]
+    initial_points = int(club["points"])
     initial_places = int(competition["numberOfPlaces"])
 
     response = client.post(
@@ -112,8 +112,9 @@ def test_purchase_reservation_with_same_points(client, booking_data):
     response_text = response.get_data(as_text=True)
     assert response.status_code == 200
     assert "Réservation effectuée avec succès." in response_text
-    assert club["points"] == initial_points
+    assert club["points"] == initial_points - 4
     assert competition["numberOfPlaces"] == initial_places - 4
+    assert "Points available: 0" in response_text
 
 
 def test_purchase_places_exceeding_limit(client, booking_data):
@@ -139,7 +140,6 @@ def test_purchase_places_at_limit(client, booking_data):
     club, competition = booking_data
     club["points"] = "12"
     competition["numberOfPlaces"] = "12"
-    initial_clubs = [club.copy() for club in server.clubs]
 
     response = client.post(
         "/purchasePlaces",
@@ -149,7 +149,7 @@ def test_purchase_places_at_limit(client, booking_data):
     response_text = response.get_data(as_text=True)
     assert response.status_code == 200
     assert "Réservation effectuée avec succès." in response_text
-    assert server.clubs == initial_clubs
+    assert club["points"] == 0
     assert competition["numberOfPlaces"] == 0
 
 
@@ -174,7 +174,6 @@ def test_purchase_places_exceeding_capacity(client, booking_data):
 def test_purchase_places_at_capacity(client, booking_data):
     club, competition = booking_data
     competition["numberOfPlaces"] = "4"
-    initial_clubs = [club.copy() for club in server.clubs]
 
     response = client.post(
         "/purchasePlaces",
@@ -184,5 +183,5 @@ def test_purchase_places_at_capacity(client, booking_data):
     response_text = response.get_data(as_text=True)
     assert response.status_code == 200
     assert "Réservation effectuée avec succès." in response_text
-    assert club["points"] == initial_clubs[0]["points"]
+    assert club["points"] == 0
     assert competition["numberOfPlaces"] == 0
