@@ -4,10 +4,37 @@ from datetime import datetime, timedelta
 import server
 
 
-@pytest.fixture(autouse=True)
-def isolated_data(monkeypatch):
-    monkeypatch.setattr(server, "clubs", server.loadClubs())
-    monkeypatch.setattr(server, "competitions", server.loadCompetitions())
+@pytest.fixture
+def club():
+    return {
+        "name": "Test Club",
+        "email": "test@example.com",
+        "points": "4",
+    }
+
+
+@pytest.fixture
+def past_competition():
+    return {
+        "name": "Past Competition",
+        "date": (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S"),
+        "numberOfPlaces": "10",
+    }
+
+
+@pytest.fixture
+def future_competition():
+    return {
+        "name": "Future Competition",
+        "date": (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S"),
+        "numberOfPlaces": "10",
+    }
+
+
+@pytest.fixture
+def isolated_data(monkeypatch, club, past_competition, future_competition):
+    monkeypatch.setattr(server, "clubs", [club])
+    monkeypatch.setattr(server, "competitions", [past_competition, future_competition])
 
 
 @pytest.fixture
@@ -16,16 +43,3 @@ def client(isolated_data):
 
     with server.app.test_client() as test_client:
         yield test_client
-
-
-@pytest.fixture
-def booking_data(monkeypatch):
-    club = {"name": "Test Club", "email": "test@example.com", "points": "4"}
-    competition = {
-        "name": "Future Competition",
-        "date": (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S"),
-        "numberOfPlaces": "10",
-    }
-    monkeypatch.setattr(server, "clubs", [club])
-    monkeypatch.setattr(server, "competitions", [competition])
-    return club, competition
