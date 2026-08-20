@@ -6,6 +6,7 @@
 </head>
 <body>
     <h1>Welcome to the GUDLFT Registration Portal!</h1>
+    <a href="{{url_for('points_display_board')}}">Points</a>
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             <ul>

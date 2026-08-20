@@ -153,3 +153,37 @@ def test_successful_purchase_deducts_club_points_and_competition_places(client, 
     assert "Réservation effectuée avec succès." in response_text
     assert club["points"] == initial_points - 4
     assert future_competition["numberOfPlaces"] == initial_places - 4
+
+
+# 7. Club points update
+def test_points_board_displays_club_name_and_points_without_email(client, club):
+    response = client.get("/points")
+
+    assert response.status_code == 200
+    response_text = response.get_data(as_text=True)
+    assert club["name"] in response_text
+    assert club["points"] in response_text
+    assert club["email"] not in response_text
+
+
+def test_points_board_displays_empty_state(client, monkeypatch):
+    monkeypatch.setattr(server, "clubs", [])
+
+    response = client.get("/points")
+
+    assert "Aucun club disponible" in response.get_data(as_text=True)
+
+
+def test_points_board_displays_updated_points_after_booking(client, club, future_competition):
+    initial_points = int(club["points"])
+
+    client.post(
+        "/purchasePlaces",
+        data={"club": club["name"], "competition": future_competition["name"], "places": "2"},
+    )
+
+    response = client.get("/points")
+    response_text = response.get_data(as_text=True)
+
+    assert club["points"] == initial_points - 2
+    assert str(club["points"]) in response_text

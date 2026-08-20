@@ -5,6 +5,7 @@
     <title>Booking for {{competition['name']}} || GUDLFT</title>
 </head>
 <body>
+    <a href="{{url_for('points_display_board')}}">Points</a>
     <h2>{{competition['name']}}</h2>
     Places available: {{competition['numberOfPlaces']}}
     <form action="/purchasePlaces" method="post">

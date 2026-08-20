@@ -35,6 +35,11 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/points")
+def points_display_board():
+    return render_template("points.html", clubs=clubs)
+
+
 @app.route("/showSummary", methods=["POST"])
 def showSummary():
     email = request.form.get("email", "").strip()

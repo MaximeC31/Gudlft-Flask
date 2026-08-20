@@ -5,8 +5,8 @@
     <title>Summary | GUDLFT Registration</title>
 </head>
 <body>
+        <a href="{{url_for('points_display_board')}}">Points</a>
         <h2>Welcome, {{club['email']}} </h2><a href="{{url_for('logout')}}">Logout</a>
-
     {% with messages = get_flashed_messages()%}
     {% if messages %}
         <ul>
