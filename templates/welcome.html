@@ -1,36 +1,43 @@
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Summary | GUDLFT Registration</title>
+    <style>
+        *{box-sizing:border-box}body{max-width:900px;margin:0 auto;padding:32px 20px;color:#111;font:18px Arial,sans-serif}main{background:#fff;border:3px solid;padding:28px;box-shadow:8px 8px #111}h1{margin:24px 0 8px}a{display:inline-block;background:#fff4a8;color:#111;border:3px solid #111;padding:8px 12px;font-weight:bold;text-decoration:none;box-shadow:4px 4px #111}a:active{transform:translate(4px,4px);box-shadow:none}nav{display:flex;gap:14px;flex-wrap:wrap}ul{padding:0;list-style:none}.messages{padding:12px;border:3px solid;background:#fff4a8}.competitions li{margin:18px 0;padding:18px;border:3px solid;background:#b8f2e6}.competitions a{margin-top:12px;background:#ff6b6b}
+    </style>
 </head>
 <body>
-        <a href="{{url_for('points_display_board')}}">Points</a>
-        <h2>Welcome, {{club['email']}} </h2><a href="{{url_for('logout')}}">Logout</a>
-    {% with messages = get_flashed_messages()%}
-    {% if messages %}
-        <ul>
-       {% for message in messages %}
-            <li>{{message}}</li>
-        {% endfor %}
-       </ul>
-    {% endif%}
-    Points available: {{club['points']}}
-    <h3>Competitions:</h3>
-    <ul>
-        {% for comp in competitions%}
-        <li>
-            {{comp['name']}}<br />
-            Date: {{comp['date']}}</br>
-            Number of Places: {{comp['numberOfPlaces']}}
-            {%if comp['numberOfPlaces']|int >0%}
-            <a href="{{ url_for('book',competition=comp['name'],club=club['name']) }}">Book Places</a>
-            {%endif%}
-        </li>
-        <hr />
-        {% endfor %}
-    </ul>
-    {%endwith%}
-
+    <main>
+        <nav>
+            <a href="{{url_for('points_display_board')}}">Points</a>
+            <a href="{{url_for('logout')}}">Logout</a>
+        </nav>
+        <h1>Welcome, {{club['email']}}</h1>
+        {% with messages = get_flashed_messages()%}
+            {% if messages %}
+                <ul class="messages">
+                {% for message in messages %}
+                    <li>{{message}}</li>
+                {% endfor %}
+                </ul>
+            {% endif%}
+            <p><strong>Points available:</strong> {{club['points']}}</p>
+            <h2>Competitions:</h2>
+            <ul class="competitions">
+                {% for comp in competitions%}
+                    <li>
+                        <strong>{{comp['name']}}</strong><br>
+                        Date: {{comp['date']}}<br>
+                        Number of Places: {{comp['numberOfPlaces']}}<br>
+                        {%if comp['numberOfPlaces']|int >0%}
+                            <a href="{{ url_for('book',competition=comp['name'],club=club['name']) }}">Book Places</a>
+                        {%endif%}
+                    </li>
+                {% endfor %}
+            </ul>
+        {%endwith%}
+    </main>
 </body>
 </html>

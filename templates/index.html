@@ -1,26 +1,32 @@
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GUDLFT Registration</title>
+    <style>
+        *{box-sizing:border-box}body{max-width:760px;margin:0 auto;padding:32px 20px;color:#111;font:18px Arial,sans-serif}main{background:#fff;border:3px solid;padding:28px;box-shadow:8px 8px #111}h1{margin-top:0}a,button{display:inline-block;background:#ff6b6b;color:#111;border:3px solid #111;padding:10px 14px;font-weight:bold;text-decoration:none;box-shadow:4px 4px #111}a:active,button:active{transform:translate(4px,4px);box-shadow:none}form{display:grid;gap:10px;margin-top:24px}input{width:100%;border:3px solid;padding:12px;font:inherit}button{cursor:pointer}ul{padding:12px 36px;border:3px solid;background:#fff}
+    </style>
 </head>
 <body>
-    <h1>Welcome to the GUDLFT Registration Portal!</h1>
-    <a href="{{url_for('points_display_board')}}">Points</a>
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul>
-                {% for message in messages %}
-                    <li style="color: red;">{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
-    Please enter your secretary email to continue:
-    <form action="showSummary" method="post">
-        <label for="email">Email:</label>
-        <input type="email" name="email" id=""/>
-        <button type="submit">Enter</button>
-    </form>
+    <main>
+        <h1>Welcome to the GUDLFT Registration Portal!</h1>
+        <a href="{{url_for('points_display_board')}}">Points</a>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+        <p>Please enter your secretary email to continue:</p>
+        <form action="showSummary" method="post">
+            <label for="email">Email:</label>
+            <input type="email" name="email" id="email" required>
+            <button type="submit">Enter</button>
+        </form>
+    </main>
 </body>
 </html>

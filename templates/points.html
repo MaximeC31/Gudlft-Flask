@@ -1,28 +1,37 @@
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Points Board || GUDLFT</title>
+    <style>
+        *{box-sizing:border-box}body{max-width:760px;margin:0 auto;padding:32px 20px;color:#111;font:18px Arial,sans-serif}main{background:#fff;border:3px solid;padding:28px;box-shadow:8px 8px #111}h1{margin-top:24px}a{display:inline-block;background:#ff6b6b;color:#111;border:3px solid #111;padding:10px 14px;font-weight:bold;text-decoration:none;box-shadow:4px 4px #111}a:active{transform:translate(4px,4px);box-shadow:none}table{width:100%;border-collapse:collapse}th,td{border:3px solid;padding:12px;text-align:left}th{background:#fff4a8}
+    </style>
 </head>
 <body>
-    <a href="{{url_for('index')}}">Home</a>
-    <h1>Points Board</h1>
-    {% if clubs %}
-        <table>
-            <tr>
-                <th>Club</th>
-                <th>Points</th>
-            </tr>
-            {% for club in clubs %}
-                <tr>
-                    <td>{{club['name']}}</td>
-                    <td>{{club['points']}}</td>
-                </tr>
-            {% endfor %}
-        </table>
+    <main>
+        <a href="{{url_for('index')}}">Home</a>
+        <h1>Points Board</h1>
+        {% if clubs %}
+            <table>
+                <thead>
+                    <tr>
+                        <th scope="col">Club</th>
+                        <th scope="col">Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for club in clubs %}
+                    <tr>
+                        <td>{{club['name']}}</td>
+                        <td>{{club['points']}}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Aucun club disponible</p>
         {% endif %}
-    {% if not clubs %}
-        <p>Aucun club disponible</p>
-        {% endif %}
-    </body>
-    </html>
+    </main>
+</body>
+</html>

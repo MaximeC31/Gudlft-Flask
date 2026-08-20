@@ -20,7 +20,7 @@ def test_valide_date_rejects_today_competition():
     assert server.valideDate(competition) is False
 
 
-def test_load_clubs_reads_clubs_json(monkeypatch):
+def test_load_clubs_reads_content_clubs(monkeypatch):
     content = '{"clubs": [{"name": "Club 1"}]}'
     opened_files = []
 
@@ -36,7 +36,7 @@ def test_load_clubs_reads_clubs_json(monkeypatch):
     assert clubs == [{"name": "Club 1"}]
 
 
-def test_load_competitions_reads_competitions_json(monkeypatch):
+def test_load_competitions_reads_content_competitions(monkeypatch):
     content = '{"competitions": [{"name": "Competition 1"}]}'
     opened_files = []
 

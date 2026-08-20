@@ -1,18 +1,25 @@
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Booking for {{competition['name']}} || GUDLFT</title>
+    <style>
+        *{box-sizing:border-box}body{max-width:760px;margin:0 auto;padding:32px 20px;color:#111;font:18px Arial,sans-serif}main{background:#fff;border:3px solid;padding:28px;box-shadow:8px 8px #111}h1{margin-top:24px}a,button{display:inline-block;background:#ff6b6b;color:#111;border:3px solid #111;padding:10px 14px;font-weight:bold;text-decoration:none;box-shadow:4px 4px #111}a:active,button:active{transform:translate(4px,4px);box-shadow:none}form{display:grid;gap:10px;margin-top:24px}input{width:100%;border:3px solid;padding:12px;font:inherit}button{cursor:pointer}
+    </style>
 </head>
 <body>
-    <a href="{{url_for('points_display_board')}}">Points</a>
-    <h2>{{competition['name']}}</h2>
-    Places available: {{competition['numberOfPlaces']}}
-    <form action="/purchasePlaces" method="post">
-        <input type="hidden" name="club" value="{{club['name']}}">
-        <input type="hidden" name="competition" value="{{competition['name']}}">
-        <label for="places">How many places?</label><input type="number" name="places" id=""/>
-        <button type="submit">Book</button>
-    </form>
+    <main>
+        <a href="{{url_for('points_display_board')}}">Points</a>
+        <h1>{{competition['name']}}</h1>
+        <p><strong>Places available:</strong> {{competition['numberOfPlaces']}}</p>
+        <form action="/purchasePlaces" method="post">
+            <input type="hidden" name="club" value="{{club['name']}}">
+            <input type="hidden" name="competition" value="{{competition['name']}}">
+            <label for="places">How many places?</label>
+            <input type="number" name="places" id="places" required>
+            <button type="submit">Book</button>
+        </form>
+    </main>
 </body>
 </html>
