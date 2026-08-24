@@ -1,51 +1,108 @@
-# gudlift-registration
+# Güdlft - Gestion de réservations de compétitions
 
-1. Why
+Application Web Flask permettant aux secrétaires de clubs de réserver des places en compétition avec les points de leur club. Le projet met l'accent sur la validation des règles métier, les tests automatisés et la mesure des performances.
 
+## Fonctionnalités
 
-    This is a proof of concept (POC) project to show a light-weight version of our competition booking platform. The aim is the keep things as light as possible, and use feedback from the users to iterate.
+- Connexion d'un club avec une adresse électronique connue
+- Affichage des compétitions, de leurs dates et des places restantes
+- Réservation uniquement pour les compétitions futures
+- Limite de 12 places par réservation
+- Refus des réservations dépassant les points du club ou la capacité disponible
+- Mise à jour conjointe des points du club et des places de la compétition
+- Tableau public en lecture seule des clubs et de leurs points
+- Messages d'erreur sans mutation des données pour les refus métier
 
-2. Getting Started
+## Stack
 
-    This project uses the following technologies:
+- Python 3.14
+- Flask 3.1
+- Jinja2
+- pytest et pytest-cov
+- Locust 2
+- Fichiers JSON en mémoire
 
-    * Python v3.x+
+## Installation
 
-    * [Flask](https://flask.palletsprojects.com/en/1.1.x/)
+Prérequis : Python 3.14 et `pip`.
 
-        Whereas Django does a lot of things for us out of the box, Flask allows us to add only what we need. 
-     
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+```
 
-    * [Virtual environment](https://virtualenv.pypa.io/en/stable/installation.html)
+## Lancement
 
-        This ensures you'll be able to install the correct packages without interfering with Python on your machine.
+Depuis la racine du projet :
 
-        Before you begin, please ensure you have this installed globally. 
+```bash
+.venv/bin/python -m flask --app server run
+```
 
+L'application est accessible sur `http://127.0.0.1:5000/`.
 
-3. Installation
+Si le port est déjà utilisé :
 
-    - After cloning, change into the directory and type <code>virtualenv .</code>. This will then set up a a virtual python environment within that directory.
+```bash
+.venv/bin/python -m flask --app server run --port 5001
+```
 
-    - Next, type <code>source bin/activate</code>. You should see that your command prompt has changed to the name of the folder. This means that you can install packages in here without affecting affecting files outside. To deactivate, type <code>deactivate</code>
+## Routes principales
 
-    - Rather than hunting around for the packages you need, you can install in one step. Type <code>pip install -r requirements.txt</code>. This will install all the packages listed in the respective file. If you install a package, make sure others know by updating the requirements.txt file. An easy way to do this is <code>pip freeze > requirements.txt</code>
+- `GET /` : page d'accueil et formulaire de connexion
+- `POST /showSummary` : connexion d'un club par adresse électronique
+- `GET /points` : tableau public des points des clubs
+- `GET /book/<competition>/<club>` : formulaire de réservation d'une compétition
+- `POST /purchasePlaces` : validation et enregistrement d'une réservation
+- `GET /logout` : retour à l'accueil
 
-    - Flask requires that you set an environmental variable to the python file. However you do that, you'll want to set the file to be <code>server.py</code>. Check [here](https://flask.palletsprojects.com/en/1.1.x/quickstart/#a-minimal-application) for more details
+## Tests
 
-    - You should now be ready to test the application. In the directory, type either <code>flask run</code> or <code>python -m flask run</code>. The app should respond with an address you should be able to go to using your browser.
+Exécuter la suite complète et le rapport de couverture :
 
-4. Current Setup
+```bash
+.venv/bin/python -m pytest
+```
 
-    The app is powered by [JSON files](https://www.tutorialspoint.com/json/json_quick_guide.htm). This is to get around having a DB until we actually need one. The main ones are:
-     
-    * competitions.json - list of competitions
-    * clubs.json - list of clubs with relevant information. You can look here to see what email addresses the app will accept for login.
+La configuration exige au moins 60 % de couverture sur `server.py`.
 
-5. Testing
+Exécuter un test d'intégration ciblé sans contrôle de couverture :
 
-    You are free to use whatever testing framework you like-the main thing is that you can show what tests you are using.
+```bash
+.venv/bin/python -m pytest --no-cov tests/integration/test_routes.py::test_show_summary_with_unknown_email_displays_error
+```
 
-    We also like to show how well we're testing, so there's a module called 
-    [coverage](https://coverage.readthedocs.io/en/coverage-5.1/) you should add to your project.
+## Test de performance
 
+Démarrer l'application dans un nouveau processus, puis lancer Locust :
+
+```bash
+.venv/bin/locust -f performance/locust/locustfile.py --host=http://127.0.0.1:5000 --headless -u 6 -r 6 -t 10s
+```
+
+Le scénario exécute six réservations en mémoire. Il doit produire zéro échec, un p95 inférieur à 5 secondes pour `GET /points` et inférieur à 2 secondes pour `POST /purchasePlaces`.
+
+## Parcours principal
+
+1. Le secrétaire saisit l'adresse électronique de son club.
+2. Il consulte son solde de points et les compétitions disponibles.
+3. Il ouvre le formulaire d'une compétition future.
+4. Il demande un nombre de places dans la limite de 12, des points disponibles et de la capacité restante.
+5. Une réservation valide déduit les points et les places, puis affiche les nouveaux soldes.
+6. Tout refus métier laisse les données inchangées.
+
+## Structure
+
+- `server.py` : application Flask, routes et règles métier
+- `templates/` : pages Jinja2
+- `clubs.json` : données initiales des clubs
+- `competitions.json` : données initiales des compétitions
+- `tests/unit/` : tests unitaires
+- `tests/integration/` : tests des routes Flask
+- `performance/locust/` : scénario de test de performance
+
+## Limites actuelles
+
+- Les réservations sont conservées uniquement en mémoire et sont annulées au redémarrage.
+- Les ressources absentes, les dates mal formées et les quantités non entières ne sont pas gérées de façon contrôlée.
+- Les tests fonctionnels Selenium ne sont pas encore implémentés.
